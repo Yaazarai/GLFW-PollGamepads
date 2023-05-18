@@ -1,6 +1,21 @@
 # GLFW-PollGamepads (C/C++)
-Creates a polling callback for gamepads to be called alongside glfwPollEvents.
+Creates a polling function and associated Button/Axis/Trigger changed callbacks for gamepads to be called alongside glfwPollEvents. Axis/Trigger changed callbacks only invoke on changes with float precision of 3 decimal places. The axis changed callback invokes once for both the X-axis and Y-axis if either or both the left or right gamepad axis changed. The API will automatically map everything to Xbox-like controllers (see GLFW API for glfwGetGamepadState).
+
+Callback parameter formad:
 ```C
+glfwGamepadButtonCallback(const* gpad_state, gpad_id, button_id, button_state)
+glfwGamepadAxisCallback(const* gpad_state, gpad_id, axisL_id, axisL_state, axisR_id, axisR_state)
+glfwGamepadTriggerCallback(const* gpad_state, gpad_id, axis_id, axis_state)
+```
+
+Gamepad Polling Header:
+```C
+#ifndef GLFW_GAMEPAD_POLLING_HEADER
+#ifdef GLFW_GAMEPAD_POLLING_HEADER
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef void (*GLFWgamepadbuttonfun)(const GLFWgamepadstate* gamepad, int32_t gpad, int32_t button, int32_t action);
 typedef void (*GLFWgamepadaxisfun)(const GLFWgamepadstate* gamepad, int32_t gpad, int32_t axisXID, float_t axisX, int32_t axisYID, float_t axisY);
 typedef void (*GLFWgamepadtriggerfun)(const GLFWgamepadstate* gamepad, int32_t gpad, int32_t axisXID, float_t axis);
@@ -12,8 +27,6 @@ GLFWAPI void glfwSetGamepadAxisCallback(GLFWgamepadaxisfun callback) { glfwGamep
 GLFWAPI void glfwSetGamepadTriggerCallback(GLFWgamepadtriggerfun callback) { glfwGamepadTriggerCallback = callback; }
 GLFWAPI GLFWgamepadstate glfwGamepadCache[GLFW_JOYSTICK_LAST + 1]{};
 GLFWAPI float_t glfwRoundfd(float_t value, float_t precision) { return std::round(value * precision) / precision; }
-GLFWAPI const char* glfwDefaultMapping = "78696e70757401000000000000000000,XInput Gamepad (GLFW),platform:Windows,a:b0,b:b1, x : b2, y : b3, leftshoulder : b4, rightshoulder : b5, back : b6, start : b7, leftstick : b8,rightstick : b9, leftx : a0, lefty : a1, rightx : a2, righty : a3, lefttrigger : a4,righttrigger : a5, dpup : h0.1, dpright : h0.2, dpdown : h0.4, dpleft : h0.8,";
-GLFWAPI void glfwSetDefaultMappingXbox() { glfwUpdateGamepadMappings(glfwDefaultMapping); }
 GLFWAPI void glfwPollGamepads() {
 	for (int32_t i = 0; i <= GLFW_JOYSTICK_LAST; i++) {
 		if (glfwJoystickPresent(i) == GLFW_FALSE) continue;
@@ -61,4 +74,9 @@ GLFWAPI void glfwPollGamepads() {
 		}
 	}
 }
+
+#ifdef __cplusplus
+}
+#endif
+#endif
 ```
